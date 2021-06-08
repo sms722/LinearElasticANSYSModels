@@ -1,0 +1,89 @@
+
+ *** IMPORTANT LICENSING MESSAGE ***
+
+ ANSYS LICENSE MANAGER ERROR:
+ Failover feature 'ANSYS Mechanical Enterprise' is not available.
+ Request name ansys does not exist in the licensing pool.
+ Cannot connect to license server system.
+  The license server manager (lmgrd) has not been started yet,
+  the wrong port@host or license file is being used, or the
+  port or hostname in the license file has been changed.
+ Feature:       ansys
+ Server name:   132.236.113.137
+ License path:  1055@ansys-lic.coecis.cornell.edu;
+ FlexNet Licensing error:-15,10032
+ *** ERROR - ANSYS license not available.
+
++--------- D I S T R I B U T E D   A N S Y S   S T A T I S T I C S ------------+
+
+Release: 2021 R1            Build: 21.1       Update: UP20201109   Platform: WINDOWS x64 
+Date Run: 05/28/2021   Time: 11:27     Process ID: 1728
+Operating System: Windows 10  (Build: 19041)
+
+Processor Model: Intel(R) Core(TM) i7-10510U CPU @ 1.80GHz
+
+Compiler: Intel(R) FORTRAN Compiler Version 19.0.0  (Build: 20190206)
+          Intel(R) C/C++ Compiler Version 19.0.0  (Build: 20190206)
+          Intel(R) Math Kernel Library Version 2020.0.0 Product Build 20191125
+
+Number of machines requested            :    1
+Total number of cores available         :    8
+Number of physical cores available      :    4
+Number of processes requested           :    2
+Number of threads per process requested :    1
+Total number of cores requested         :    2 (Distributed Memory Parallel)               
+MPI Type: INTELMPI
+MPI Version: Intel(R) MPI Library 2018 Update 3 for Windows* OS
+
+
+GPU Acceleration: Not Requested
+
+Job Name: file0
+
+  Core                Machine Name   Working Directory
+ -----------------------------------------------------
+     0             DESKTOP-TO9O0TF   C:\Users\srika\Desktop\KDDM_ANSYS_APDL_Codes\APDL_Truth_2D_NxN_PBC_Package
+     1             DESKTOP-TO9O0TF   C:\Users\srika\Desktop\KDDM_ANSYS_APDL_Codes\APDL_Truth_2D_NxN_PBC_Package
+ 
+ 
+
+Total CPU time for main thread                    :        0.3 seconds
+Total CPU time summed for all threads             :        0.1 seconds
+
+Elapsed time spent obtaining a license            :        0.0 seconds
+Elapsed time spent pre-processing model (/PREP7)  :        0.0 seconds
+Elapsed time spent solution - preprocessing       :        0.0 seconds
+Elapsed time spent computing solution             :        0.0 seconds
+Elapsed time spent solution - postprocessing      :        0.0 seconds
+Elapsed time spent post-processing model (/POST1) :        0.0 seconds
+ 
+
+Maximum total memory used                         :        4.0 MB
+Maximum total memory allocated                    :        0.0 MB
+Total physical memory available                   :          8 GB
+
+Total amount of I/O written to disk               :        0.0 GB
+Total amount of I/O read from disk                :        0.0 GB
+
++------ E N D   D I S T R I B U T E D   A N S Y S   S T A T I S T I C S -------+
+
+
+ *---------------------------------------------------------------------------*
+ |                                                                           |
+ |                       DISTRIBUTED ANSYS RUN COMPLETED                     |
+ |                                                                           |
+ |---------------------------------------------------------------------------|
+ |                                                                           |
+ | Ansys 2021 R1               Build 21.1         UP20201109     WINDOWS x64 |
+ |                                                                           |
+ |---------------------------------------------------------------------------|
+ |                                                                           |
+ | Database Requested(-db)     0 MB    Scratch Memory Requested         0 MB |
+ | Maximum Database Used       1 MB    Maximum Scratch Memory Used      1 MB |
+ |                                                                           |
+ |---------------------------------------------------------------------------|
+ |                                                                           |
+ |        CP Time      (sec) =          0.062       Time  =  11:27:39        |
+ |        Elapsed Time (sec) =         21.000       Date  =  05/28/2021      |
+ |                                                                           |
+ *---------------------------------------------------------------------------*

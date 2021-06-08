@@ -1,0 +1,306 @@
+/PREP7
+
+!---Read the input parameters in para_in.txt----------
+!********** Input Constants
+*DIM,PARA,ARRAY,6,1
+*CREATE,ANSUITMP
+*VREAD,PARA(1),C:\Users\srika\Desktop\KDDM_ANSYS_APDL_Codes\APDL_Truth_2D_NxN_PBC_Package\para_in,txt,,IJK,6,1
+(F14.6)
+*END
+/INPUT,ANSUITMP
+
+!********** Define Constants
+TEMP_SEL = PARA(1)
+SEL = (TEMP_SEL)*(10**(-3)) ! Unit cell side length
+E_MATERIAL = PARA(2) ! Young's Modulus (Material)
+CA_LENGTH = PARA(3) ! Number of truss members in design
+STRAIN_DIR = PARA(4) ! Direction of strain (horizontal, vertical, or shear)
+SIDENUM = PARA(5) ! Number of nodes per side
+PRXY_STANDIN = 0.49 ! Poisson's Ratio (Material)
+
+!********** Input Member Radii
+*DIM,TEMPRADS,ARRAY,CA_LENGTH,1
+*CREATE,ANSUITMP
+*VREAD,TEMPRADS(1),C:\Users\srika\Desktop\KDDM_ANSYS_APDL_Codes\APDL_Truth_2D_NxN_PBC_Package\para_in,txt,,IJK,CA_LENGTH,,,5
+(F14.6)
+*END
+/INPUT,ANSUITMP
+*DIM,RADII,ARRAY,CA_LENGTH,1
+RESIZE = 10**(-6)
+*VOPER,RADII,TEMPRADS,MULT,RESIZE
+
+!********** Input Member Lengths
+*DIM,TEMPLENGTHS,ARRAY,CA_LENGTH,1
+*CREATE,ANSUITMP
+*VREAD,TEMPLENGTHS(1),C:\Users\srika\Desktop\KDDM_ANSYS_APDL_Codes\APDL_Truth_2D_NxN_PBC_Package\para_in,txt,,IJK,CA_LENGTH,,,(5+CA_LENGTH)
+(F14.6)
+*END
+/INPUT,ANSUITMP
+*DIM,LENGTHS,ARRAY,CA_LENGTH,1
+RESIZENT = 10**(-3)
+*VOPER,LENGTHS,TEMPLENGTHS,MULT,RESIZENT
+
+!********** Input Member Working Plane Angles
+*DIM,WPANGLES,ARRAY,CA_LENGTH,1
+*CREATE,ANSUITMP
+*VREAD,WPANGLES(1),C:\Users\srika\Desktop\KDDM_ANSYS_APDL_Codes\APDL_Truth_2D_NxN_PBC_Package\para_in,txt,,IJK,CA_LENGTH,,,(5+(2*CA_LENGTH))
+(F14.6)
+*END
+/INPUT,ANSUITMP
+
+!********** Input Edge Member Key
+*DIM,EDGEMEMSKEY,ARRAY,CA_LENGTH,1
+*CREATE,ANSUITMP
+*VREAD,EDGEMEMSKEY(1),C:\Users\srika\Desktop\KDDM_ANSYS_APDL_Codes\APDL_Truth_2D_NxN_PBC_Package\para_in,txt,,IJK,CA_LENGTH,,,(5+(3*CA_LENGTH))
+(F14.6)
+*END
+/INPUT,ANSUITMP
+
+!********** Input Connectivity Array (Left Side/ Start Points of Truss Members)
+*DIM,CAL,ARRAY,CA_LENGTH,1
+*CREATE,ANSUITMP
+*VREAD,CAL(1),C:\Users\srika\Desktop\KDDM_ANSYS_APDL_Codes\APDL_Truth_2D_NxN_PBC_Package\para_in,txt,,IJK,CA_LENGTH,,,(5+(4*CA_LENGTH))
+(F14.6)
+*END
+/INPUT,ANSUITMP
+
+!********** Input Connectivity Array (Right Side/ End Points of Truss Members)
+*DIM,CAR,ARRAY,CA_LENGTH,1
+*CREATE,ANSUITMP
+*VREAD,CAR(1),C:\Users\srika\Desktop\KDDM_ANSYS_APDL_Codes\APDL_Truth_2D_NxN_PBC_Package\para_in,txt,,IJK,CA_LENGTH,,,(5+(5*CA_LENGTH))
+(F14.6)
+*END
+/INPUT,ANSUITMP
+!-------------------------------------------------------
+
+
+!------------ Run APDL Script --------------------------
+!********** Initialize model
+! Element Type for Members
+ET,1,SOLID185
+
+! Element Type for Dummy Nodes
+ET,2,MASS21,0,0,2
+R,2,20
+
+! Material
+MPTEMP,,,,,,,,
+MPTEMP,1,0
+MPDATA,EX,1,,E_MATERIAL
+MPDATA,PRXY,1,,PRXY_STANDIN
+
+!********** Define Grid Coordinates
+*DIM,XCOORDS,ARRAY,(SIDENUM**2),1
+*DIM,YCOORDS,ARRAY,(SIDENUM**2),1
+*DIM,NODENUMS,ARRAY,(SIDENUM**2),1
+COUNTER = 0
+
+*DO,i,0,(SIDENUM-1),1
+*DO,j,0,(SIDENUM-1),1
+COUNTER = COUNTER + 1
+NODENUMS(COUNTER) = COUNTER
+XCOORDS(COUNTER) = ((i*SEL)/(SIDENUM-1))
+YCOORDS(COUNTER) = ((j*SEL)/(SIDENUM-1))
+*ENDDO
+*ENDDO
+
+!********** Member Geometry
+! Plot Grid Keypoints
+!K,NODENUMS(1:(SIDENUM**2)),XCOORDS(1:(SIDENUM**2)),YCOORDS(1:(SIDENUM**2)),0
+
+! Draw Members
+*DO,i,1,CA_LENGTH,1
+! Define Working Plane
+STARTPT = CAL(i)
+ENDPT = CAR(i)
+ANGLE = WPANGLES(i)
+WPLANE,1,XCOORDS(STARTPT),YCOORDS(STARTPT),0,XCOORDS(STARTPT),YCOORDS(STARTPT),-SEL,(XCOORDS(STARTPT)-(SIN(ANGLE))),(YCOORDS(STARTPT)+(COS(ANGLE))),-SEL
+! Draw Cylinder
+*IF,EDGEMEMSKEY(i),EQ,0,THEN
+CYLIND,0,RADII(i),0,LENGTHS(i),0,360
+*ELSEIF,EDGEMEMSKEY(i),EQ,1
+CYLIND,0,RADII(i),0,-LENGTHS(i),0,180
+*ELSEIF,EDGEMEMSKEY(i),EQ,2
+CYLIND,0,RADII(i),0,LENGTHS(i),0,180
+*ELSEIF,EDGEMEMSKEY(i),EQ,3
+CYLIND,0,RADII(i),0,LENGTHS(i),0,180
+*ELSEIF,EDGEMEMSKEY(i),EQ,4
+CYLIND,0,RADII(i),0,-LENGTHS(i),0,180
+*ENDIF
+*ENDDO
+
+!********** Coalesce Volumes as One
+VOVLAP,ALL
+
+!********** Trim Edge Faces of Unit Cell
+VSEL,S,LOC,X,(-SEL/500),(SEL+(SEL/500)),(SEL/500),1
+VSEL,R,LOC,Y,(-SEL/500),(SEL+(SEL/500)),(SEL/500),
+VSEL,INVE
+VDELE,ALL
+
+!********** Assign Attributes to Volume
+VSEL,ALL
+VATT,1,1,1,
+
+!********** Mesh Volume
+VSEL,ALL
+ESIZE,,0.075
+MSHAPE,1,3D
+MSHKEY,0
+VMESH,ALL
+
+!********** Define Dummy Nodes
+! Define Nodes for Dummy Nodes
+*GET,NUM_NODES,NODE,0,COUNT
+N,(NUM_NODES + 1),(XCOORDS(SIDENUM**2) + SEL),0,0,0,0,0
+N,(NUM_NODES + 2),0,(YCOORDS(SIDENUM**2) + SEL),0,0,0,0
+
+! Define Mass Elements at Dummy Nodes
+*GET,NUM_ELEMS,ELEM,0,COUNT
+TYPE,2
+REAL,2
+E,(NUM_NODES + 1)
+E,(NUM_NODES + 2)
+
+! ********* Boundary conditions
+! No Z Displacement Anywhere
+NSEL,ALL
+D,ALL,UZ,0
+
+! No Displacement of "Node-1"-Position Nodes
+NSEL,S,LOC,X,0,0,0
+NSEL,R,LOC,Y,0,0,0
+D,ALL,UX,0
+D,ALL,UY,0
+
+! Left and Right Side PBC Linking in X and Y
+NSEL,S,LOC,X,0,0,0
+NSEL,R,LOC,Y,0,SEL
+*GET,L_NUM_NODES,NODE,,COUNT
+*DIM,LMASK,ARRAY,NUM_NODES
+*VGET,LMASK(1),NODE,1,NSEL
+*DIM,L_NODES_Y,ARRAY,L_NUM_NODES,1
+*DIM,L_NODES_Z,ARRAY,L_NUM_NODES,1
+COUNTER = 1
+*DO,i,1,NUM_NODES,1
+*IF,LMASK(i),EQ,1,THEN
+*VGET,L_NODES_Y(COUNTER),NODE,i,LOC,Y
+*VGET,L_NODES_Z(COUNTER),NODE,i,LOC,Z
+COUNTER = COUNTER + 1
+*ENDIF
+*ENDDO
+NSEL,ALL
+*DO,k,1,L_NUM_NODES,1
+LSNN = NODE(0,L_NODES_Y(k),L_NODES_Z(k))
+RSNN = NODE(SEL,L_NODES_Y(k),L_NODES_Z(k))
+CE,NEXT,0,RSNN,UX,-1,LSNN,UX,1,(NUM_NODES + 1),UX,1
+CE,NEXT,0,RSNN,UY,-1,LSNN,UY,1,(NUM_NODES + 1),UY,1
+*ENDDO
+
+! Top and Bottom Side PBC Linking in X and Y
+NSEL,S,LOC,Y,0,0,0
+NSEL,R,LOC,X,0,SEL
+*GET,B_NUM_NODES,NODE,,COUNT
+*DIM,BMASK,ARRAY,NUM_NODES
+*VGET,BMASK(1),NODE,1,NSEL
+*DIM,B_NODES_X,ARRAY,B_NUM_NODES,1
+*DIM,B_NODES_Z,ARRAY,B_NUM_NODES,1
+COUNTER = 1
+*DO,i,1,NUM_NODES,1
+*IF,BMASK(i),EQ,1,THEN
+*VGET,B_NODES_X(COUNTER),NODE,i,LOC,X
+*VGET,B_NODES_Z(COUNTER),NODE,i,LOC,Z
+COUNTER = COUNTER + 1
+*ENDIF
+*ENDDO
+NSEL,ALL
+*DO,j,1,B_NUM_NODES,1
+BSNN = NODE(B_NODES_X(j),0,B_NODES_Z(j))
+TSNN = NODE(B_NODES_X(j),SEL,B_NODES_Z(j))
+CE,NEXT,0,TSNN,UX,-1,BSNN,UX,1,(NUM_NODES + 2),UX,1
+CE,NEXT,0,TSNN,UY,-1,BSNN,UY,1,(NUM_NODES + 2),UY,1
+*ENDDO
+
+! *** X-Direction Stretch
+*IF,STRAIN_DIR,EQ,1,THEN
+
+! Applied Displacements to Dummy Node at Right End (non-zero in X, zero in Y)
+D,(NUM_NODES + 1),UX,(SEL*(0.001))
+D,(NUM_NODES + 1),UY,0
+
+! Applied Displacements to Dummy Node at Top End (zero in X and Y)
+D,(NUM_NODES + 2),UX,0
+D,(NUM_NODES + 2),UY,0
+
+! *** Y-Direction Stretch
+*ELSEIF,STRAIN_DIR,EQ,2
+
+! Applied Displacements to Dummy Node at Right End (non-zero in X, zero in Y)
+D,(NUM_NODES + 1),UX,0
+D,(NUM_NODES + 1),UY,0
+
+! Applied Displacements to Dummy Node at Top End (zero in X and Y)
+D,(NUM_NODES + 2),UX,0
+D,(NUM_NODES + 2),UY,(SEL*(0.001))
+
+! *** XY-Shear
+*ELSE
+
+! No Forces on Dummy Node at Right End (zero in X and Y)
+D,(NUM_NODES + 1),UX,0
+D,(NUM_NODES + 1),UY,(SEL*(0.0005))
+
+! Applied Displacements to Dummy Node at Top End (non-zero in X, zero in Y)
+D,(NUM_NODES + 2),UX,(SEL*(0.0005))
+D,(NUM_NODES + 2),UY,0
+
+! No Rotations On Left Edge
+NSEL,S,LOC,X,0,0
+NSEL,R,LOC,Y,0,SEL
+D,ALL,ROTX,0
+D,ALL,ROTY,0
+D,ALL,ROTZ,0
+
+*ENDIF
+
+ALLSEL,ALL
+FINISH
+
+! ********** SOLVE
+/SOL
+SOLVE
+FINISH
+!-------------------------------------------------------
+
+
+!-------------------write results-----------------------
+! ********** POSTPROCESSING
+/POST26
+NUMVAR,4
+
+! Separating X-Forces
+RFORCE,2,(NUM_NODES + 1),F,X
+
+! Separating Y-Forces
+RFORCE,3,(NUM_NODES + 2),F,Y
+
+! Separating XY-Forces
+RFORCE,4,(NUM_NODES + 2),F,X
+
+*DIM,RESULT,ARRAY,3,1
+*DO,k,1,3,1
+VGET,RESULT(k),(k+1),1,0
+*ENDDO
+
+
+!----------output the result to para_out.txt -----------
+!*VLEN,1
+*CREATE,EE
+*CFOPEN,C:\Users\srika\Desktop\KDDM_ANSYS_APDL_Codes\APDL_Truth_2D_NxN_PBC_Package\para_out,txt,,
+*VWRITE,RESULT(1)
+(E20.10)
+*CFCLOS
+*END
+/INPUT,EE
+
+!-------------------------------------------------------
